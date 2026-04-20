@@ -4,6 +4,7 @@ matplotlib
 numpy
 pandas
 tiktoken
+tensorflow
 
 --extra-index-url https://download.pytorch.org/whl/cu128
 torch==2.11.0+cu128
