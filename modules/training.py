@@ -1,5 +1,7 @@
 import torch
+import numpy as np
 from tqdm import tqdm
+import math
 
 from modules.sampling import *
 from modules.structure import *
@@ -162,7 +164,7 @@ def load_weights_into_gpt(gpt, params):
     gpt.final_norm.shift = assign(gpt.final_norm.shift, params["b"])
     gpt.out_head.weight = assign(gpt.out_head.weight, params["wte"])
 
-def train_one_epoch(model, train_loader, optimizer, criterion, device):
+def train_one_epoch(model, train_loader, optimizer, criterion, device, global_step, warmup_steps, initial_lr, lr_increment, peak_lr, min_lr, total_steps):
 
     model.train()
     train_loss = 0
@@ -175,6 +177,17 @@ def train_one_epoch(model, train_loader, optimizer, criterion, device):
         labels = batch["labels"].to(device)
 
         optimizer.zero_grad()
+
+        global_step += 1
+
+        if global_step < warmup_steps:
+            lr = initial_lr + global_step * lr_increment
+        else:
+            progress = ((global_step - warmup_steps) / (total_steps - warmup_steps))
+            lr = min_lr + (peak_lr - min_lr) * 0.5 * (1 + math.cos(math.pi * progress))
+
+        for param_group in optimizer.param_groups:
+            param_group["lr"] = lr
 
         logits = model(input_ids)
 
@@ -221,7 +234,14 @@ def evaluate(model, val_loader, criterion, device):
 
     return val_loss / len(val_loader)
 
-def train_model(model, train_loader, val_loader, optimizer, criterion, device, num_epochs):
+def train_model(model, train_loader, val_loader, optimizer, criterion, device, initial_lr, peak_lr, num_epochs):
+
+    total_steps = len(train_loader) * num_epochs
+    warmup_steps = int(0.2 * total_steps)
+    min_lr = 0.1 * initial_lr
+    lr_increment = (peak_lr - initial_lr) / warmup_steps
+
+    global_step = -1
 
     for epoch in range(num_epochs):
 
@@ -230,7 +250,14 @@ def train_model(model, train_loader, val_loader, optimizer, criterion, device, n
             train_loader,
             optimizer,
             criterion,
-            device
+            device,
+            global_step,
+            warmup_steps,
+            initial_lr,
+            lr_increment,
+            peak_lr,
+            min_lr,
+            total_steps
         )
 
         avg_val_loss = evaluate(
