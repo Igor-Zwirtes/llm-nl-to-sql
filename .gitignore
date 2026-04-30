@@ -1,4 +1,5 @@
 env/
+env310/
 src/
 __pycache__
 gpt2
