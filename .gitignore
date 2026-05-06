@@ -1,6 +1,30 @@
+# Ambientes virtuais
 env/
 env310/
-src/
-__pycache__
-gpt2
+.venv/
+venv/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Modelos e checkpoints (pesados demais para o git)
 models/
+gpt2/
+*.bin
+*.safetensors
+*.gguf
+
+# Outputs do fine-tuning
+qwen-spider-finetuned/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# HuggingFace cache local
+.cache/
+
+# Credenciais
+.env
+*.token
