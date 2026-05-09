@@ -8,6 +8,6 @@ datasets
 trl
 peft
 accelerate
-bitsandbytes
+bitsandbytes==0.46.1
 sentencepiece
 ipywidgets
