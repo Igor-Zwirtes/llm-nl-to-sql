@@ -5,7 +5,6 @@ torchaudio==2.5.1+cu121
 
 transformers
 datasets
-trl
 peft
 accelerate
 bitsandbytes==0.46.1
