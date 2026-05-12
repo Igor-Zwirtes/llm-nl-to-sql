@@ -9,6 +9,7 @@ peft
 accelerate
 bitsandbytes==0.46.1
 sentencepiece
+rapidfuzz
 
 jupyterlab>=4
 notebook>=7
